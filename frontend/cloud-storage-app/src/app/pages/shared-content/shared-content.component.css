@@ -1,0 +1,34 @@
+#content-table {
+  width: 100%;
+  height: 100%;
+  text-align: justify;
+  justify-content: center;
+  align-content: center;
+  padding: 5%;
+  margin-left: 20%;
+}
+
+
+[class*="col-"] {
+  width: 100%;
+}
+@media (max-width: 767px) {
+  #content-table {
+    margin-left: 0px;
+    padding: 0;
+  }
+}
+
+@media (max-width: 990px) {
+  .container {
+    margin-left: 80px;
+  }
+}
+
+@media (max-width: 1040px) {
+  .container {
+    margin-left: 50px;
+  }
+}
+
+
