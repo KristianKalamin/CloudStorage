@@ -4,7 +4,7 @@ import com.kalamin.CloudStorage.dto.DeleteDto;
 import com.kalamin.CloudStorage.dto.FileDto;
 import com.kalamin.CloudStorage.dto.FolderContentDto;
 import com.kalamin.CloudStorage.dto.NewFolderDto;
-import com.kalamin.CloudStorage.service.impl.DriveServiceImpl;
+import com.kalamin.CloudStorage.service.IDriveService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -24,7 +24,7 @@ import java.nio.file.Files;
 @RequestMapping("drive")
 public class DriveController {
     @Autowired
-    private DriveServiceImpl driveService;
+    private IDriveService driveService;
 
     @GetMapping(value = "files", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @ResponseBody

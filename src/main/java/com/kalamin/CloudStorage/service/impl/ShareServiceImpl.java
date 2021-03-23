@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Collections;
@@ -33,7 +32,7 @@ public class ShareServiceImpl implements IShareService {
     private UserRepository userRepository;
 
     @Override
-    public String createSharableLink(long userId, long fileId, boolean isFolder) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public String createSharableLink(long userId, long fileId, boolean isFolder) throws UnsupportedEncodingException {
         String filePath;
         if (isFolder) {
             filePath = folderRepository.getOne(fileId).getPath();

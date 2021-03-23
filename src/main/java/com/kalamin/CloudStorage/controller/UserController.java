@@ -2,8 +2,7 @@ package com.kalamin.CloudStorage.controller;
 
 import com.kalamin.CloudStorage.dto.UserDto;
 import com.kalamin.CloudStorage.exception.UserException;
-import com.kalamin.CloudStorage.model.User;
-import com.kalamin.CloudStorage.service.impl.UserServiceImpl;
+import com.kalamin.CloudStorage.service.IUserService;
 import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class UserController {
     @Autowired
-    private UserServiceImpl userService;
+    private IUserService userService;
 
     @NotNull
     @PostMapping("login")

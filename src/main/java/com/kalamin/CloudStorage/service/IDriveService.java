@@ -1,6 +1,5 @@
 package com.kalamin.CloudStorage.service;
 
-import com.kalamin.CloudStorage.dto.DeleteDto;
 import com.kalamin.CloudStorage.dto.FileDto;
 import com.kalamin.CloudStorage.dto.FolderContentDto;
 import org.springframework.web.multipart.MultipartFile;
