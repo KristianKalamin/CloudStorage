@@ -63,11 +63,12 @@ public class DriveServiceImpl implements IDriveService {
     @Override
     public FolderContentDto loadRootFolder(long userId) {
         final var drive = userRepository.getOne(userId).getDrive();
-        final var folders = drive.getFolders().stream().filter(f -> f.getTimeOfDeletion() == null).collect(Collectors.toList());
+        var folders = drive.getFolders().stream().filter(f -> f.getTimeOfDeletion() == null).collect(Collectors.toList());
         Folder rootFolder = new Folder(folders.stream().filter(f -> f.getName().equals("root")).findFirst().get());
         final var files = rootFolder.getFiles().stream().filter(f -> f.getTimeOfDeletion() == null).collect(Collectors.toList());
         folders.remove(rootFolder);
         rootFolder.getSubFolders().remove(rootFolder);
+        folders = folders.stream().filter(f->f.getParentFolder().getId() == rootFolder.getId()).collect(Collectors.toList());
 
         return new FolderContentDto(rootFolder, folders, files);
     }

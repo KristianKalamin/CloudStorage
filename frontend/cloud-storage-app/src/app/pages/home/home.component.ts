@@ -20,11 +20,12 @@ export class HomeComponent implements OnInit {
   currentFolderId: number;
   fileEvent: any;
   uploadProgress: number;
+  i = 0
 
   constructor(private toast: ToastrService, private modalService: NgbModal, private homeHttpApi: HomeService, private router: Router) {
     this.allData = {};
     this.currentFolderId = 0;
-    this.uploadProgress = 0;
+    this.uploadProgress = 0;//TODO back arrow not working with nested folders
   }
 
   ngOnInit(): void {
@@ -53,6 +54,7 @@ export class HomeComponent implements OnInit {
         this.allData = res;
         this.currentFolderName = res.rootFolder!.name!;
         console.log("Up " + this.currentFolderName);
+        this.i--;
 
       },
       error => console.log(error)
@@ -138,7 +140,7 @@ export class HomeComponent implements OnInit {
             this.currentFolderName = content.name!;
             this.currentFolderId = content.id!;
             console.log(this.allData);
-
+            this.i++;
           },
           error => console.log(error)
 
