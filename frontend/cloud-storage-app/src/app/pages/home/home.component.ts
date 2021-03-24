@@ -25,7 +25,7 @@ export class HomeComponent implements OnInit {
   constructor(private toast: ToastrService, private modalService: NgbModal, private homeHttpApi: HomeService, private router: Router) {
     this.allData = {};
     this.currentFolderId = 0;
-    this.uploadProgress = 0;//TODO back arrow not working with nested folders
+    this.uploadProgress = 0;
   }
 
   ngOnInit(): void {
