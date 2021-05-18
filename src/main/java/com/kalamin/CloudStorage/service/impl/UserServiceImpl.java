@@ -1,7 +1,6 @@
 package com.kalamin.CloudStorage.service.impl;
 
 import com.kalamin.CloudStorage.dto.UserDto;
-import com.kalamin.CloudStorage.exception.UserException;
 import com.kalamin.CloudStorage.model.Drive;
 import com.kalamin.CloudStorage.model.Folder;
 import com.kalamin.CloudStorage.model.User;
@@ -29,43 +28,35 @@ public class UserServiceImpl implements IUserService {
     private FolderRepository folderRepository;
 
     @Override
-    public UserDto login(UserDto userDto) throws UserException {
-        User user = userRepository.login(userDto.getEmail().trim(), userDto.getPassword().trim());
-        if (user == null) {
-            throw new UserException("Invalid user data");
-        }
-        return new UserDto(user.getId(),
-                user.getName(),
-                user.getLastname(),
-                user.getEmail(),
-                null);
+    public UserDto login(UserDto userDto) {
+        var user = userRepository.findUserByIdEquals(userDto.getSub().trim());
+        if (user == null)
+            register(userDto.getSub(), userDto.getNickname(), userDto.getEmail());
+
+        return userDto;
     }
 
     @Transactional
-    @Override
-    public UserDto register(UserDto userDto) {
+    public void register(String userId, String name, String email) {
         // creates new user with empty storage
-        User newUser = new User(userDto.getName().trim(), userDto.getLastname().trim(), userDto.getEmail().trim(), userDto.getPassword().trim());
-        newUser = userRepository.save(newUser);
-        String path = createFolderInUploads(newUser.getId() + "/root");
+        try {
+            User newUser = new User(userId, name, email);
+            newUser = userRepository.save(newUser);
+            String path = createFolderInUploads(userId + "/root");
 
-        java.io.File fRoot = new File(path);
-        fRoot.mkdirs();
+            java.io.File fRoot = new File(path);
+            fRoot.mkdirs();
 
-        Drive userDrive = new Drive(newUser);
-        driveRepository.save(userDrive);
+            Drive userDrive = new Drive(newUser);
+            driveRepository.save(userDrive);
 
-        Folder rootFolder = new Folder("root", path, new Timestamp(System.currentTimeMillis()), null, userDrive);
-        folderRepository.save(rootFolder);
-
-        rootFolder.setDrive(userDrive);
-        rootFolder.setParentFolder(rootFolder);
-
-        return new UserDto(newUser.getId(),
-                newUser.getName(),
-                newUser.getLastname(),
-                newUser.getEmail(),
-                null);
+            Folder rootFolder = new Folder("root", path, new Timestamp(System.currentTimeMillis()), null, userDrive);
+            rootFolder.setDrive(userDrive);
+            rootFolder.setParentFolder(rootFolder);
+            folderRepository.saveAndFlush(rootFolder);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

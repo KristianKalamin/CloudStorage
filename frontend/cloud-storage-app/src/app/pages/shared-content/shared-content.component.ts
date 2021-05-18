@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { FolderContent } from 'src/app/shared/model/folder-content-model';
 import { SharedContentService } from 'src/app/shared/services/shared-content.service';
 
@@ -17,11 +17,8 @@ export class SharedContentComponent implements OnInit {
 
   ngOnInit(): void {
     const link = this.route.snapshot.paramMap.get("link");
-    console.log(link);
-
     this.sharedHttpApi.getSharedContent(link!).subscribe(
       res => {
-        console.log(res);
         this.content = res;
       },
       error => console.log(error)

@@ -8,9 +8,7 @@ import lombok.*;
 @ToString
 @EqualsAndHashCode
 public class UserDto {
-    private long id;
-    private String name;
-    private String lastname;
+    private String sub;
+    private String nickname;
     private String email;
-    private String password;
 }

@@ -61,14 +61,14 @@ public class DriveServiceImpl implements IDriveService {
     }
 
     @Override
-    public FolderContentDto loadRootFolder(long userId) {
+    public FolderContentDto loadRootFolder(String userId) {
         final var drive = userRepository.getOne(userId).getDrive();
         var folders = drive.getFolders().stream().filter(f -> f.getTimeOfDeletion() == null).collect(Collectors.toList());
         Folder rootFolder = new Folder(folders.stream().filter(f -> f.getName().equals("root")).findFirst().get());
         final var files = rootFolder.getFiles().stream().filter(f -> f.getTimeOfDeletion() == null).collect(Collectors.toList());
         folders.remove(rootFolder);
         rootFolder.getSubFolders().remove(rootFolder);
-        folders = folders.stream().filter(f->f.getParentFolder().getId() == rootFolder.getId()).collect(Collectors.toList());
+        folders = folders.stream().filter(f -> f.getParentFolder().getId() == rootFolder.getId()).collect(Collectors.toList());
 
         return new FolderContentDto(rootFolder, folders, files);
     }
@@ -94,9 +94,10 @@ public class DriveServiceImpl implements IDriveService {
     }
 
     @Override
-    public FileDto upload(long userId, long folderId, MultipartFile file) {
+    public FileDto upload(String userId, long folderId, MultipartFile file) {
         try {
-            Drive userDrive = driveRepository.getOne(userId);
+
+            Drive userDrive = userRepository.getOne(userId).getDrive();
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
             final var rootFolder = userDrive.getFolders().stream().filter(f -> f.getId() == folderId).findFirst().get();
@@ -158,7 +159,7 @@ public class DriveServiceImpl implements IDriveService {
     @SneakyThrows
     @Transactional
     @Override
-    public FileDto update(long userId, long folderId, MultipartFile file) {
+    public FileDto update(String userId, long folderId, MultipartFile file) {
         final var userFolders = userRepository.getOne(userId).getDrive().getFolders();
         final var folder = userFolders.stream().findFirst().filter(f -> f.getId() == folderId).get();
         final var oldFile = folder.getFiles().stream().findFirst().filter(f -> f.getName().equals(file.getOriginalFilename())).orElse(null);
@@ -175,7 +176,7 @@ public class DriveServiceImpl implements IDriveService {
     }
 
     @Override
-    public FolderContentDto trash(long userId) {
+    public FolderContentDto trash(String userId) {
         final var trashedFolders = folderRepository.getUsersDeletedFolders(userId);
         final var trashedFiles = fileRepository.getUsersDeletedFiles(userId);
         return new FolderContentDto(null, trashedFolders, trashedFiles);

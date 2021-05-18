@@ -1,11 +1,14 @@
 package com.kalamin.CloudStorage.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -14,30 +17,21 @@ import java.util.List;
 @Table(name = "user")
 @JsonIgnoreProperties("shareds")
 public class User {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private long id;
+    private String id;
 
     @Basic
     @Column(name = "name")
     private String name;
 
     @Basic
-    @Column(name = "lastname")
-    private String lastname;
-
-    @Basic
     @Column(name = "email")
     private String email;
 
-    @Basic
-    @Column(name = "password")
-    private String password;
-
     @ManyToMany()
-    @JoinTable(
-            name = "sharing",
+    @JoinTable(name = "sharing",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "shared_id", referencedColumnName = "shared_id"))
     private List<Shared> shareds = new ArrayList<>();
@@ -45,22 +39,34 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Drive drive;
 
+    public User(String id) {
+        this.id = id;
+    }
 
-
-    public User(String name, String lastname, String email, String password) {
+    public User(String userId, String name, String email) {
         this.email = email;
         this.name = name;
-        this.lastname = lastname;
-        this.password = password;
+        this.id = userId;
     }
 
     @Override
     public String toString() {
         return "User{" +
-                "name='" + name + '\'' +
-                ", lastname='" + lastname + '\'' +
+                "userId='" + id + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

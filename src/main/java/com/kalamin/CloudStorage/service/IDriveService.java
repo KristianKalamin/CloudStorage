@@ -9,19 +9,19 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public interface IDriveService extends IService {
-    FileDto upload(long userId, long folderId, MultipartFile file) throws Exception;
+    FileDto upload(String userId, long folderId, MultipartFile file) throws Exception;
 
     @Transactional
     void delete(long id, boolean isFolder);
 
     @Transactional
-    FileDto update(long userId, long folderId, MultipartFile file);
+    FileDto update(String userId, long folderId, MultipartFile file);
 
-    FolderContentDto trash(long userId);
+    FolderContentDto trash(String userId);
 
-    void createFolder(long userId, String folderName);
+    void createFolder(long parentFolderId, String folderName);
 
-    FolderContentDto loadRootFolder(long userId);
+    FolderContentDto loadRootFolder(String userId);
 
     FolderContentDto folderContent(long folderId);
 

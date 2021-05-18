@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 
-@CrossOrigin
 @RestController
 @RequestMapping("drive")
 public class DriveController {
@@ -44,7 +43,7 @@ public class DriveController {
 
     @PostMapping("get-root-folder")
     public @ResponseBody
-    ResponseEntity<FolderContentDto> getRootFolder(@RequestBody long userId) {
+    ResponseEntity<FolderContentDto> getRootFolder(@RequestBody String userId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(
                     driveService.loadRootFolder(userId)
@@ -81,7 +80,7 @@ public class DriveController {
     public @ResponseBody
     ResponseEntity<FileDto> update(@RequestParam("file") MultipartFile file,
                                    @RequestParam("folder") long folderId,
-                                   @RequestParam("id") long userId) {
+                                   @RequestParam("id") String userId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(
                     driveService.update(userId, folderId, file));
@@ -95,7 +94,7 @@ public class DriveController {
     public @ResponseBody
     ResponseEntity<FileDto> upload(@RequestParam("folder") long folderId,
                                    @RequestParam("file") MultipartFile file,
-                                   @RequestParam("id") long userId) {
+                                   @RequestParam("id") String userId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(
                     driveService.upload(userId, folderId, file));
@@ -107,7 +106,7 @@ public class DriveController {
 
     @PostMapping("trash")
     public @ResponseBody
-    ResponseEntity<FolderContentDto> trashedFiles(@RequestBody long userId) {
+    ResponseEntity<FolderContentDto> trashedFiles(@RequestBody String userId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(driveService.trash(userId));
         } catch (Exception ex) {

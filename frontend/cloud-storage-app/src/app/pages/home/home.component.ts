@@ -5,7 +5,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CombinedData } from 'src/app/shared/model/combined-data.model';
 import { HomeService } from 'src/app/shared/services/home.service';
 import { ActiveToast, Toast, ToastrService } from 'ngx-toastr';
-
+import { AuthService } from 'src/app/shared/services/auth.service';
+import { UserService } from 'src/app/shared/services/user.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -16,24 +17,59 @@ export class HomeComponent implements OnInit {
   newFolderName = '';
   currentFolderName = '';
   isTrashShowed = false;
-  sharedLink?: string;
+  sharedLink: string = "";
   currentFolderId: number;
   fileEvent: any;
   uploadProgress: number;
-  i = 0
+  i = 0;
+  isEmailShare = false;
+  emailsTextBox: string = "";
+  shareContentId?: number;
+  sharedMsg: string = "";
+  isDriveContentShowed = true;
+  userEmail: string = "";
 
-  constructor(private toast: ToastrService, private modalService: NgbModal, private homeHttpApi: HomeService, private router: Router) {
+  constructor(private auth: AuthService, private userService: UserService, private toast: ToastrService, private modalService: NgbModal, private homeHttpApi: HomeService, private router: Router) {
     this.allData = {};
     this.currentFolderId = 0;
     this.uploadProgress = 0;
   }
 
   ngOnInit(): void {
-    this.loadData();
+    this.userService.login(this.auth.cloudUser!)
+      .subscribe(r => {
+        this.userEmail = this.auth.cloudUser!.email!;
+        this.loadData();
+      });
+
+  }
+
+  sharedWithMe() {
+    this.homeHttpApi.sharedWithMe().subscribe(
+      sharedContent => {
+        this.isDriveContentShowed = false;
+        let cd: CombinedData = {
+          rootFolder: {},
+          combinedFiles: sharedContent
+        };
+        this.allData = cd;
+      },
+      error => console.log(error)
+    )
+  }
+
+  emailShare() {
+    let emails: string[] = this.emailsTextBox.split(",");
+    this.homeHttpApi
+      .shareWithUsers(emails, this.allData.combinedFiles![this.shareContentId!])
+      .subscribe(_ => this.sharedMsg = "Link is send to emails",
+        error => this.sharedMsg = "Error");
   }
 
   logout() {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    this.auth.logout();
     this.router.navigate(['/']);
   }
 
@@ -101,7 +137,7 @@ export class HomeComponent implements OnInit {
                 break;
               case HttpEventType.UploadProgress:
                 this.uploadProgress = Math.round(event.loaded / event.total! * 100);
-                toastInstance.message = "Uploading " + files[i].name + " - "+ this.uploadProgress + "%";
+                toastInstance.message = "Uploading " + files[i].name + " - " + this.uploadProgress + "%";
                 break;
               case HttpEventType.Response:
                 this.refreshCurrentFolder();
@@ -179,14 +215,15 @@ export class HomeComponent implements OnInit {
     )
   }
 
-  share(id: number) {
-    this.homeHttpApi.getShareLink(this.allData.combinedFiles![id]).subscribe(
+  shareWithAnyone() {
+    this.isEmailShare = false;
+    this.homeHttpApi.getShareLink(this.allData.combinedFiles![this.shareContentId!]).subscribe(
       res => {
         console.log(res);
-        this.sharedLink = res
+        this.sharedLink = res as string;
       },
       error => console.log(error)
-    )
+    );
   }
 
   deleteFile(id: number) {
@@ -202,6 +239,7 @@ export class HomeComponent implements OnInit {
     this.isTrashShowed = false;
     this.homeHttpApi.loadRootFolder().subscribe(
       combinedData => {
+        this.isDriveContentShowed = true;
         this.allData = combinedData;
         this.currentFolderName = combinedData.rootFolder!.name!;
 
@@ -241,19 +279,25 @@ export class HomeComponent implements OnInit {
   openShareContentModal(contentId, share) {
     console.log(contentId);
 
-    this.modalService.open(share, { ariaLabelledBy: 'share' }).shown.subscribe(
+    let modal = this.modalService.open(share, { ariaLabelledBy: 'share' });
+
+    modal.shown.subscribe(
       _ => {
         if (this.isTrashShowed) {
           this.loadData();
         } else {
-          this.share(contentId);
+          this.shareContentId = contentId;
         }
       },
       error => console.log(error)
+    );
 
-
-    )
+    modal.closed.subscribe(
+      _ => {
+        this.sharedMsg = "";
+        this.sharedLink = "";
+        this.isEmailShare = false;
+        this.emailsTextBox = "";
+      });
   }
-
-
 }

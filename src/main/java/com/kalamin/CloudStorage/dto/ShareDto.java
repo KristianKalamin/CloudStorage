@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class ShareDto {
-    private long userId;
+    private String userId;
     private long fileId;
     private boolean isFolder;
 

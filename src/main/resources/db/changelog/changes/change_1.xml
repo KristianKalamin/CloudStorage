@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="Kalamin (generated)" id="1621176706789-1">
+        <createTable tableName="drive">
+            <column autoIncrement="true" name="drive_id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-2">
+        <createTable tableName="file">
+            <column autoIncrement="true" name="file_id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="path" type="VARCHAR(255)"/>
+            <column name="size" type="BIGINT"/>
+            <column name="time_of_creation" type="datetime(6)"/>
+            <column name="time_of_deletion" type="datetime(6)"/>
+            <column name="version" type="INT"/>
+            <column name="folder_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-3">
+        <createTable tableName="folder">
+            <column autoIncrement="true" name="folder_id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="path" type="VARCHAR(255)"/>
+            <column name="time_of_creation" type="datetime(6)"/>
+            <column name="time_of_deletion" type="datetime(6)"/>
+            <column name="drive_id" type="BIGINT"/>
+            <column name="parent_folder_folder_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-4">
+        <createTable tableName="shared">
+            <column autoIncrement="true" name="shared_id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="file_path" type="VARCHAR(255)"/>
+            <column name="shared_uri" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-5">
+        <createTable tableName="sharing">
+            <column name="user_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shared_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-6">
+        <createTable tableName="user">
+            <column name="user_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-7">
+        <addPrimaryKey columnNames="user_id" constraintName="PRIMARY" tableName="user"/>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-8">
+        <createIndex indexName="FKb6lnq5lh9klrgdkx854j9cry1" tableName="sharing">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-9">
+        <createIndex indexName="FKdfgd9qovcgebjry9mynttnijc" tableName="file">
+            <column name="folder_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-10">
+        <createIndex indexName="FKfngugwoftw50m8ugyqxv6x3b1" tableName="folder">
+            <column name="drive_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-11">
+        <createIndex indexName="FKq5c7uuw4bi22ko5958eb1lcpd" tableName="sharing">
+            <column name="shared_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-12">
+        <createIndex indexName="FKqccpdaf68ecd5qnnt72je68x7" tableName="folder">
+            <column name="parent_folder_folder_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-13">
+        <createIndex indexName="FKt8wnai264wtcebr2furom00rs" tableName="drive">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-14">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="sharing"
+                                 constraintName="FKb6lnq5lh9klrgdkx854j9cry1" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="user_id" referencedTableName="user"/>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-15">
+        <addForeignKeyConstraint baseColumnNames="folder_id" baseTableName="file"
+                                 constraintName="FKdfgd9qovcgebjry9mynttnijc" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="folder_id" referencedTableName="folder"/>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-16">
+        <addForeignKeyConstraint baseColumnNames="drive_id" baseTableName="folder"
+                                 constraintName="FKfngugwoftw50m8ugyqxv6x3b1" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="drive_id" referencedTableName="drive"/>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-17">
+        <addForeignKeyConstraint baseColumnNames="shared_id" baseTableName="sharing"
+                                 constraintName="FKq5c7uuw4bi22ko5958eb1lcpd" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="shared_id" referencedTableName="shared"/>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-18">
+        <addForeignKeyConstraint baseColumnNames="parent_folder_folder_id" baseTableName="folder"
+                                 constraintName="FKqccpdaf68ecd5qnnt72je68x7" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="folder_id" referencedTableName="folder"/>
+    </changeSet>
+    <changeSet author="Kalamin (generated)" id="1621176706789-19">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="drive"
+                                 constraintName="FKt8wnai264wtcebr2furom00rs" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="user_id" referencedTableName="user"/>
+    </changeSet>
+</databaseChangeLog>

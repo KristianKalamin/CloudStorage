@@ -15,7 +15,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
     File getFileByPathEquals(String path);
 
     @Query("select f from File f WHERE f.folder.drive.user.id =?1 AND f.timeOfDeletion IS NOT NULL")
-    List<File> getUsersDeletedFiles(long userId);
+    List<File> getUsersDeletedFiles(String userId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM file WHERE file_id = ?1", nativeQuery = true)

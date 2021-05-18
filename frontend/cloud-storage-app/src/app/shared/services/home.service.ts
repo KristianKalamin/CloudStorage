@@ -1,28 +1,33 @@
-import { HttpClient, HttpEvent, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CombinedData } from '../model/combined-data.model';
 import { FolderContent } from '../model/folder-content-model';
 import { Folder } from '../model/folder.model';
-import { User } from '../model/user.model';
+import { CloudUser } from '../model/cloud-user.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HomeService {
-  user: User
   DRIVE_URL = "http://localhost:8080/drive";
   SHARE_URL = "http://localhost:8080/share";
+  httpOptions: object;
+  user: CloudUser;
+  token: string;
 
-  constructor(private httpClient: HttpClient) {
-    this.user = JSON.parse(localStorage.getItem('currentUser') || "");
+  constructor(private httpClient: HttpClient, private auth: AuthService,) {
+    this.token = auth.token!;
+    this.httpOptions = { headers: new HttpHeaders({ "Authorization": "Bearer " + this.token }) }
+    this.user = auth.cloudUser!;
   }
 
   update(folderId: number, existingFile: File): Observable<HttpEvent<any>> {
     const formData = new FormData();
 
     formData.append("file", existingFile, existingFile.name)
-    formData.append("id", JSON.stringify(this.user.id));
+    formData.append("id", JSON.stringify(this.user.sub));
     formData.append("folder", JSON.stringify(folderId));
 
     return this.httpClient.post(this.DRIVE_URL + "/update", formData, {
@@ -37,12 +42,13 @@ export class HomeService {
     const formData = new FormData();
 
     formData.append("file", selectedFile, selectedFile.name)
-    formData.append("id", JSON.stringify(this.user.id));
+    formData.append("id", this.user.sub || "");
     formData.append("folder", JSON.stringify(folderId));
 
     return this.httpClient.post(this.DRIVE_URL + "/upload", formData, {
       reportProgress: true,
-      observe: 'events'
+      observe: 'events',
+      ...this.httpOptions
     })
   }
 
@@ -51,33 +57,34 @@ export class HomeService {
       {
         "parentFolderId": parentFolderId,
         "folderName": name
-      });
+      }, this.httpOptions);
   }
 
   loadRootFolder(): Observable<CombinedData> {
-    return this.httpClient.post<CombinedData>(this.DRIVE_URL + "/get-root-folder", this.user.id)
+    return this.httpClient.post<CombinedData>(this.DRIVE_URL + "/get-root-folder", this.user.sub, this.httpOptions);
   }
 
   loadFolderContent(folderId: number): Observable<CombinedData> {
-    return this.httpClient.post<CombinedData>(this.DRIVE_URL + "/folder-content", folderId)
+    return this.httpClient.post<CombinedData>(this.DRIVE_URL + "/folder-content", folderId, this.httpOptions);
   }
+
 
   delete(file: FolderContent) {
     return this.httpClient.post(this.DRIVE_URL + "/delete", {
       "id": file.id,
       "isFolder": (file.version! == -1)
-    });
+    }, this.httpOptions);
   }
 
   restore(file: FolderContent) {
     return this.httpClient.post(this.DRIVE_URL + "/restore-deleted", {
       "id": file.id,
       "isFolder": (file.version! == -1)
-    });
+    }, this.httpOptions);
   }
 
   loadTrashedFiles(): Observable<CombinedData> {
-    return this.httpClient.post<CombinedData>(this.DRIVE_URL + "/trash", this.user.id);
+    return this.httpClient.post<CombinedData>(this.DRIVE_URL + "/trash", this.user.sub, this.httpOptions);
   }
 
   download(file: FolderContent): any {
@@ -86,15 +93,40 @@ export class HomeService {
     params = params.append("isFolder", (file.version! == -1) ? "true" : "false");
 
     return this.httpClient.get(this.DRIVE_URL + "/files",
-      { observe: 'response', responseType: 'arraybuffer', params: params });
+      {
+        observe: 'response',
+        responseType: 'arraybuffer',
+        params: params,
+       ...this.httpOptions
+      });
+  }
+
+  sharedWithMe(): Observable<FolderContent[]> {
+    return this.httpClient.post<FolderContent[]>(this.SHARE_URL+"/shared-with-me",this.user.sub, this.httpOptions);
+  }
+
+  shareWithUsers(emails:string[], file: FolderContent): Observable<any> {
+    return this.httpClient.post(this.SHARE_URL + "/content/users",
+    {
+      "userId": this.user.sub,
+      "fileId": file.id!,
+      "isFolder": (file.version! == -1),
+      "emails": emails
+    }, {
+      responseType: 'text',
+   ...this.httpOptions
+  })
   }
 
   getShareLink(file: FolderContent): any {
     return this.httpClient.post(this.SHARE_URL + "/content",
       {
-        "userId": this.user.id,
+        "userId": this.user.sub,
         "fileId": file.id!,
-        "isFolder": (file.version! == -1)
-      }, { responseType: 'text' })
+        "isFolder": (file.version! == -1),
+      }, {
+        responseType: 'text',
+     ...this.httpOptions
+    })
   }
 }

@@ -45,4 +45,9 @@ public class Shared {
         this.sharedUri = sharedUri;
         this.users = users;
     }
+
+    public Shared(String filePath, String sharedUri) {
+        this.filePath = filePath;
+        this.sharedUri = sharedUri;
+    }
 }

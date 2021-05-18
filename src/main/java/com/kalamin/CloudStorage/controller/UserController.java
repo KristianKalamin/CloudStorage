@@ -8,9 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "*")
 @RestController
 public class UserController {
     @Autowired
@@ -18,19 +20,12 @@ public class UserController {
 
     @NotNull
     @PostMapping("login")
-    private @ResponseBody
+    public @ResponseBody
     ResponseEntity<UserDto> login(@RequestBody @Valid UserDto user) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(userService.login(user));
         } catch (UserException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-    }
-
-    @NotNull
-    @PostMapping("register")
-    private @ResponseBody
-    ResponseEntity<UserDto> register(@RequestBody @Valid UserDto user) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.register(user));
     }
 }

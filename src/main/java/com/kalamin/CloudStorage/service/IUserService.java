@@ -7,8 +7,5 @@ import com.kalamin.CloudStorage.model.User;
 import javax.transaction.Transactional;
 
 public interface IUserService extends IService {
-    @Transactional
-    UserDto register(UserDto userDto);
-
     UserDto login(UserDto userDto) throws UserException;
 }

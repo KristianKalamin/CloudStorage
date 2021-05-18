@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { User } from '../model/user.model';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CloudUser } from '../model/cloud-user.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
+  httpOptions: object;
 
-  constructor(private httpClient: HttpClient) { }
-
-  login(user: User) {
-    return this.httpClient.post("http://localhost:8080/login", user);
+  constructor(private httpClient: HttpClient, private auth: AuthService) {
+    this.httpOptions = { headers: new HttpHeaders({ "Authorization": "Bearer " + auth.token! }) }
   }
 
-  register(user: User) {
-    return this.httpClient.post("http://localhost:8080/register", user);
+  login(user: CloudUser) {
+    return this.httpClient.post("http://localhost:8080/login", user, this.httpOptions);
   }
 }
